@@ -20,6 +20,9 @@ app.get('/',(req,res)=>{
     res.render('index',{title:"Chess Game"});
 })
 
+io.on("connection",function(uniquesocket){
+    console.log("Connected");
+});
 
 
 server.listen(3000,(err)=>{
