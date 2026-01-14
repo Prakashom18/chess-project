@@ -23,9 +23,13 @@ app.get('/',(req,res)=>{
 io.on("connection",function(uniquesocket){
     console.log("Connected");
 
-    uniquesocket.on("churan",function(){
-        console.log("churan recieved")
-    })
+    uniquesocket.on("disconnect",function(){
+        console.log("Disconnected");
+    })    
+    // uniquesocket.on("churan",function(){
+    //     console.log("churan recieved");
+    //     io.emit("churan papdi")
+    // })
 });
 
 
