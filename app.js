@@ -22,6 +22,10 @@ app.get('/',(req,res)=>{
 
 io.on("connection",function(uniquesocket){
     console.log("Connected");
+
+    uniquesocket.on("churan",function(){
+        console.log("churan recieved")
+    })
 });
 
 
