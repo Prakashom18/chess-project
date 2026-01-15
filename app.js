@@ -49,11 +49,21 @@ io.on("connection",function(uniquesocket){
             if(chess.turn()==='w' && uniquesocket.id !==players.white) return;
             if(chess.turn()==='b' && uniquesocket.id !== players.black ) return;
            
-            const result =  chess.move(move);
+            const result = chess.move(move);
+            if(result){
+                currentPlayer = chess.turn();
+                io.emit('move');
+                io.emit('boardState',chess.fen());
+            }
+            else{
+                console.log("Invalid move :", move);
+                uniquesocket.emit('invalidMove', move);
+            }
 
         }
         catch(err){
-
+            console.log(err);
+            uniquesocket.emit("Invalid move:",move);
 
         }
     })
