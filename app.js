@@ -42,7 +42,21 @@ io.on("connection",function(uniquesocket){
         else if(uniquesocket.id===players.black){
             delete players.black;
         }
-    })    
+    })   
+    
+    uniquesocket.on("move",(move)=>{
+        try{
+            if(chess.turn()==='w' && uniquesocket.id !==players.white) return;
+            if(chess.turn()==='b' && uniquesocket.id !== players.black ) return;
+           
+            const result =  chess.move(move);
+
+        }
+        catch(err){
+
+
+        }
+    })
     // uniquesocket.on("churan",function(){
     //     console.log("churan recieved");
     //     io.emit("churan papdi")
