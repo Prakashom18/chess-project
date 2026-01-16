@@ -20,6 +20,17 @@ const renderBoard = ()=>{
 
             if(square){
                 const pieceElement = document.createElement('div');
+                pieceElement.classList.add('piece',square.color === 'w' ? "white":"black")
+                pieceElement.innerText = "";
+                pieceElement.draggable = playerRole === square.color;
+
+                pieceElement.addEventListener('dragstart', ()=>{
+                    if(pieceElement.draggable){
+                        draggedPiece = pieceElement;
+                        sourceSquare = {row:rowindex,col:squareindex};
+                    }
+                })
+
             }
         })
     })
