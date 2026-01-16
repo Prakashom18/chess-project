@@ -16,7 +16,7 @@ const renderBoard = ()=>{
             squareElement.classList.
             add('square',(rowindex+squareindex)%2 === 0 ? "light" : "dark");
             squareElement.dataset.row = rowindex;
-            square.dataset.col=squareindex;
+            squareElement.dataset.col=squareindex;
 
             if(square){
                 const pieceElement = document.createElement('div');
@@ -24,16 +24,39 @@ const renderBoard = ()=>{
                 pieceElement.innerText = "";
                 pieceElement.draggable = playerRole === square.color;
 
-                pieceElement.addEventListener('dragstart', ()=>{
+                pieceElement.addEventListener('dragstart', (e)=>{
                     if(pieceElement.draggable){
                         draggedPiece = pieceElement;
                         sourceSquare = {row:rowindex,col:squareindex};
+                        e.dataTransfer.setData('text/plain',"");
                     }
                 })
 
+                pieceElement.addEventListener("dragend",(e)=>{
+                    draggedPiece = null;
+                    sourceSquare = null;
+                })
+                squareElement.appendChild(pieceElement);
             }
+            squareElement.addEventListener('dragover',function(e){
+                e.preventDefault();
+            })
+            squareElement.addEventListener('drop',function(e){
+                e.preventDefault();
+                if(draggedPiece){
+                    const targetSource = {
+                        row : parseInt(squareElement.dataset.row),
+                        col : parseInt(squareElement.dataset.col),
+                    }
+                    handleMove(sourceSquare,targetSource);
+                }
+            })
+            boardElement.appendChild(squareElement);
         })
+
+
     })
+    
 };
 
 const handleMove = () =>{
