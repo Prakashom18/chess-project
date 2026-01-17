@@ -64,6 +64,21 @@ const handleMove = () =>{
 }
 
 const getPieceUnicode = () =>{
+    const unicodePieces = {
+
+        p : '',
+        r : '',
+        n : '',
+        b : '',
+        q : '',
+        k : '',
+        P : '',
+        R : '',
+        N : '',
+        B : '',
+        Q : '',
+        K : ''
+    }
 
 };
 
