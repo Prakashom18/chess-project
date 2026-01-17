@@ -1,3 +1,5 @@
+const { render } = require("ejs");
+
 const socket = io();
 const chess = new Chess();
 const boardElement = document.querySelector(".chessboard");
@@ -21,7 +23,7 @@ const renderBoard = ()=>{
             if(square){
                 const pieceElement = document.createElement('div');
                 pieceElement.classList.add('piece',square.color === 'w' ? "white":"black")
-                pieceElement.innerText = "";
+                pieceElement.innerText = getPieceUnicode(square);
                 pieceElement.draggable = playerRole === square.color;
 
                 pieceElement.addEventListener('dragstart', (e)=>{
@@ -59,28 +61,41 @@ const renderBoard = ()=>{
     
 };
 
-const handleMove = () =>{
+const handleMove = (source,target) =>{
+    constmove ={
+        from: `${String.fromCharCode(97+source.col)}${8-source.row}` ,
+        to :`${String.fromCharCode(97+source.col)}${8-source.row}` ,
+        promotion :'q'||'b'||'k'||'r'||'n',
+
+    }
 
 }
 
-const getPieceUnicode = () =>{
+const getPieceUnicode = (piece) =>{
     const unicodePieces = {
-
-        p : '',
-        r : '',
-        n : '',
-        b : '',
-        q : '',
-        k : '',
-        P : '',
-        R : '',
-        N : '',
-        B : '',
-        Q : '',
-        K : ''
+        p : '♙',
+        r : '♖',
+        n : '♘',
+        b : '♗',
+        q : '♕',
+        k : '♔',
+        P : '♟',
+        R : '♜',
+        N : '♞',
+        B : '♝',
+        Q : '♛',
+        K : '♚'
     }
+    return unicodePieces[piece.type] || "";
 
 };
+
+
+
+socket.on('playerRole',function(role){
+    playerRole = role;
+    renderBoard();
+})
 
 renderBoard();
 
