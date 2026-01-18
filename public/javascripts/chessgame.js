@@ -8,36 +8,42 @@ let draggedPiece = null;
 let sourceSquare = null;
 let playerRole = null;
 
+/* ---------- RENDER BOARD ---------- */
 const renderBoard = () => {
     const board = chess.board();
     boardElement.innerHTML = "";
 
-    board.forEach((row, rowindex) => {
-        row.forEach((square, squareindex) => {
+    board.forEach((row, rowIndex) => {
+        row.forEach((square, colIndex) => {
             const squareElement = document.createElement("div");
+
             squareElement.classList.add(
                 "square",
-                (rowindex + squareindex) % 2 === 0 ? "light" : "dark"
+                (rowIndex + colIndex) % 2 === 0 ? "light" : "dark"
             );
 
-            squareElement.dataset.row = rowindex;
-            squareElement.dataset.col = squareindex;
+            squareElement.dataset.row = rowIndex;
+            squareElement.dataset.col = colIndex;
 
+            /* ---------- PIECE ---------- */
             if (square) {
                 const pieceElement = document.createElement("div");
+
                 pieceElement.classList.add(
                     "piece",
                     square.color === "w" ? "white" : "black"
                 );
 
                 pieceElement.innerText = getPieceUnicode(square);
+
+                // Allow dragging only if player owns the piece
                 pieceElement.draggable = playerRole === square.color;
 
                 pieceElement.addEventListener("dragstart", (e) => {
                     if (!pieceElement.draggable) return;
 
                     draggedPiece = pieceElement;
-                    sourceSquare = { row: rowindex, col: squareindex };
+                    sourceSquare = { row: rowIndex, col: colIndex };
                     e.dataTransfer.setData("text/plain", "");
                 });
 
@@ -49,6 +55,7 @@ const renderBoard = () => {
                 squareElement.appendChild(pieceElement);
             }
 
+            /* ---------- DROP EVENTS ---------- */
             squareElement.addEventListener("dragover", (e) => {
                 e.preventDefault();
             });
@@ -57,12 +64,12 @@ const renderBoard = () => {
                 e.preventDefault();
                 if (!draggedPiece || !sourceSquare) return;
 
-                const targetSource = {
-                    row: parseInt(squareElement.dataset.row),
-                    col: parseInt(squareElement.dataset.col),
+                const targetSquare = {
+                    row: Number(squareElement.dataset.row),
+                    col: Number(squareElement.dataset.col),
                 };
 
-                handleMove(sourceSquare, targetSource);
+                handleMove(sourceSquare, targetSquare);
             });
 
             boardElement.appendChild(squareElement);
@@ -70,48 +77,67 @@ const renderBoard = () => {
     });
 };
 
+/* ---------- HANDLE MOVE ---------- */
 const handleMove = (source, target) => {
     const move = {
         from: `${String.fromCharCode(97 + source.col)}${8 - source.row}`,
         to: `${String.fromCharCode(97 + target.col)}${8 - target.row}`,
-        promotion: "q", // fixed
+        promotion: "q", // auto promote to queen
     };
 
     socket.emit("move", move);
 };
 
+/* ---------- UNICODE PIECES ---------- */
 const getPieceUnicode = (piece) => {
     const unicodePieces = {
-        p: "♟",
-        r: "♜",
-        n: "♞",
-        b: "♝",
-        q: "♛",
-        k: "♚",
+        w: {
+            p: "♙",
+            r: "♖",
+            n: "♘",
+            b: "♗",
+            q: "♕",
+            k: "♔",
+        },
+        b: {
+            p: "♟",
+            r: "♜",
+            n: "♞",
+            b: "♝",
+            q: "♛",
+            k: "♚",
+        }
     };
-    return unicodePieces[piece.type] || "";
+
+    return unicodePieces[piece.color][piece.type];
 };
 
-/* -------- SOCKET EVENTS -------- */
 
-socket.on("playerRole", function (role) {
+/* ---------- SOCKET EVENTS ---------- */
+
+// Assigned as white or black
+socket.on("playerRole", (role) => {
     playerRole = role;
     renderBoard();
 });
 
-socket.on("spectatorRole", function () {
+// Spectator
+socket.on("spectatorRole", () => {
     playerRole = null;
     renderBoard();
 });
 
-socket.on("boardState", function (fen) {
-    chess.load(fen); // fixed typo (len → fen)
+// Sync board state
+socket.on("boardState", (fen) => {
+    chess.load(fen);
     renderBoard();
 });
 
-socket.on("move", function (move) {
+// Apply opponent move
+socket.on("move", (move) => {
     chess.move(move);
     renderBoard();
 });
 
+// Initial render
 renderBoard();
